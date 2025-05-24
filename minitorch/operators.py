@@ -146,9 +146,9 @@ def is_close(x: float, y: float) -> float:
 
     Returns:
     -------
-        abs(x - y) < 1e-2
+        abs(x - y) < 1e-4
     """
-    return abs(x - y) < 1e-2
+    return abs(x - y) < 1e-4
 
 
 def sigmoid(x: float) -> float:
