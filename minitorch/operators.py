@@ -3,7 +3,7 @@
 import math
 
 # ## Task 0.1
-from typing import List
+from typing import Callable, Iterable
 
 #
 # Implementation of a prelude of elementary functions.
@@ -282,52 +282,115 @@ def relu_back(x: float, grad: float) -> float:
 # - prod: take the product of lists
 
 
-# TODO: Implement for Task 0.3.
-def addLists(ls1: List[float], ls2: List[float]) -> List[float]:
-    """Add two lists together.
+def map(fn: Callable[[float], float]) -> Callable[[Iterable[float]], Iterable[float]]:
+    """Higher-order function that applies a given function to each element of an iterable
 
     Args:
     ----
-        ls1: A list of floats.
-        ls2: A list of floats.
+        fn: A function that takes a float and returns a float.
 
     Returns:
     -------
-        ls1 + ls2
+        A function that takes an iterable of floats and returns an iterable of floats.
     """
-    return [x + y for x, y in zip(ls1, ls2)]
+
+    def apply(ls: Iterable[float]) -> Iterable[float]:
+        return [fn(x) for x in ls]
+
+    return apply
 
 
-def negList(ls: List[float]) -> List[float]:
-    """Negate a list.
+def zipWith(
+    fn: Callable[[float, float], float],
+) -> Callable[[Iterable[float], Iterable[float]], Iterable[float]]:
+    """Higher-order function that combines elements from two iterables using a given function
 
     Args:
     ----
-        ls: A list of floats.
+        fn: A function that takes two floats and returns a float.
+
+    Returns:
+    -------
+        A function that takes two iterables of floats and returns an iterable of floats.
+    """
+
+    def apply(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
+        return [fn(x, y) for x, y in zip(ls1, ls2)]
+
+    return apply
+
+
+def reduce(fn: Callable[[float, float], float]) -> Callable[[Iterable[float]], float]:
+    """Higher-order function that reduces an iterable to a single value using a given function
+
+    Args:
+    ----
+        fn: A function that takes two floats and returns a float.
+
+    Returns:
+    -------
+        A function that takes an iterable of floats and returns a float.
+    """
+
+    def apply(ls: Iterable[float]) -> float:
+        l = list(ls)
+        if len(l) == 0:
+            return 0.0
+        result = l[0]
+        if len(l) > 1:
+            for x in l[1:]:
+                result = fn(result, x)
+        return result
+
+    return apply
+
+
+# TODO: Implement for Task 0.3.
+def negList(ls: Iterable[float]) -> Iterable[float]:
+    """Negate all elements in a list using map
+
+    Args:
+    ----
+        ls: An iterable of floats.
 
     Returns:
     -------
         -ls
     """
-    return [-x for x in ls]
+    return map(neg)(ls)
 
 
-def sum(ls: List[float]) -> float:
-    """Sum lists.
+def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
+    """Add corresponding elements from two lists using zipWith
 
     Args:
     ----
-        ls: A list of floats.
+        ls1: An iterable of floats.
+        ls2: An iterable of floats.
+
+    Returns:
+    -------
+        ls1 + ls2
+    """
+    return zipWith(add)(ls1, ls2)
+
+
+def sum(ls: Iterable[float]) -> float:
+    """Sum all elements in a list using reduce
+
+    Args:
+    ----
+        ls: An iterable of floats.
 
     Returns:
     -------
         sum(ls)
     """
-    return sum(ls)
+    return reduce(add)(ls)
 
 
-def prod(ls: List[float]) -> float:
-    """Product of lists.
+def prod(ls: Iterable[float]) -> float:
+    """Calculate the product of all elements in a list using reduce
 
     Args:
     ----
@@ -337,4 +400,4 @@ def prod(ls: List[float]) -> float:
     -------
         prod(ls)
     """
-    return prod(ls)
+    return reduce(mul)(ls)
